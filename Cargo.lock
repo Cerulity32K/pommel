@@ -23,6 +23,7 @@ checksum = "9555578bc9e57714c812a1f84e4fc5b4d21fcb063490c624de019f7464c91268"
 [[package]]
 name = "decent"
 version = "0.1.0"
+source = "git+https://github.com/Cerulity32K/decent#29690ab2db0b425d4a834d37be14e7d187b24f71"
 dependencies = [
  "num",
 ]
@@ -30,6 +31,7 @@ dependencies = [
 [[package]]
 name = "decent-macros"
 version = "0.1.0"
+source = "git+https://github.com/Cerulity32K/decent#29690ab2db0b425d4a834d37be14e7d187b24f71"
 dependencies = [
  "decent",
  "proc-macro2",

@@ -9,5 +9,5 @@ crate-type = ["lib", "rlib", "cdylib", "staticlib"]
 [dependencies]
 hound = "3.5.1"
 rand = "0.9.1"
-decent = { path = "../decent" }
-decent-macros = { path = "../decent/decent-macros" }
+decent = { git = "https://github.com/Cerulity32K/decent" }
+decent-macros = { git = "https://github.com/Cerulity32K/decent" }
