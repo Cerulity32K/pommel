@@ -42,3 +42,4 @@ What is `0.5` in FM becomes `0.5x` in POM. If you've taken calculus, you might'v
 - [ ] Examples
 - [ ] Integrate with Cranelift for JIT-compiled synthesisers.
 - [ ] A more complete C FFI, especially one that includes more complex waveform types.
+- [ ] Fix listed types.
