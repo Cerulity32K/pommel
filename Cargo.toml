@@ -3,9 +3,6 @@ name = "pommel"
 version = "0.1.0"
 edition = "2024"
 
-[lib]
-crate-type = ["lib", "rlib", "cdylib", "staticlib"]
-
 [dependencies]
 decent = { git = "https://github.com/Cerulity32K/decent" }
 decent-macros = { git = "https://github.com/Cerulity32K/decent" }
