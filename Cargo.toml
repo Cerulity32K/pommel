@@ -1,0 +1,13 @@
+[package]
+name = "pommel"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+crate-type = ["lib", "rlib", "cdylib", "staticlib"]
+
+[dependencies]
+hound = "3.5.1"
+rand = "0.9.1"
+decent = { path = "../decent" }
+decent-macros = { path = "../decent/decent-macros" }

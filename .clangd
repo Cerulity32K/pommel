@@ -1,0 +1,2 @@
+CompileFlags:
+    Add: [-std=c++2c, -I/opt/devkitpro/libogc/include, -DHW_RVL, -Werror=return-type]
