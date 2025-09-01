@@ -12,6 +12,7 @@ use decent_macros::Binary;
 pub type Period = Duration;
 pub type SampleID = u64;
 
+/// Some time utilities used internally.
 pub mod time {
     use std::time::Duration;
 
@@ -22,6 +23,15 @@ pub mod time {
             (nanos / NANOS_PER_SEC as u128) as u64,
             (nanos % NANOS_PER_SEC as u128) as u32,
         )
+    }
+    pub fn duration_saturating_mul_f64(lhs: Duration, rhs: f64) -> Duration {
+        if rhs < 0.0 {
+            return Duration::ZERO;
+        }
+        match Duration::try_from_secs_f64(rhs * lhs.as_secs_f64()) {
+            Ok(duration) => duration,
+            Err(_) => Duration::MAX,
+        }
     }
 }
 
@@ -64,9 +74,11 @@ impl Sample {
         period = if period < self.loop_point {
             period
         } else {
-            time::wrap_duration(period.saturating_sub(self.loop_point), self.loop_duration).saturating_add(self.loop_point)
+            time::wrap_duration(period.saturating_sub(self.loop_point), self.loop_duration)
+                .saturating_add(self.loop_point)
         };
-        let sample_index = period.mul_f64(self.samples_per_period).as_secs() as usize;
+        let sample_index =
+            time::duration_saturating_mul_f64(period, self.samples_per_period).as_secs() as usize;
         self.pcm_data.get(sample_index).copied().unwrap_or(0.0)
     }
 }
@@ -305,8 +317,13 @@ impl Pom<SampleBank> for Operator {
 
         // println!("{self:?} {} {}", self.frequency, self.peak_volume);
 
-        // at 
-        self.current_waveform_period = self.current_waveform_period.saturating_add(delta_time.mul_f64(self.frequency));
+        // at
+        self.current_waveform_period =
+            self.current_waveform_period
+                .saturating_add(time::duration_saturating_mul_f64(
+                    delta_time,
+                    self.frequency,
+                ));
         Some(
             self.waveform.sample(
                 data,
