@@ -57,14 +57,14 @@ impl Sample {
             if negative_phase_offset_period > period {
                 return 0.0;
             }
-            period -= negative_phase_offset_period;
+            period = period.saturating_sub(negative_phase_offset_period);
         } else {
-            period += Period::from_secs_f64(phase_offset);
+            period = period.saturating_add(Period::from_secs_f64(phase_offset));
         }
         period = if period < self.loop_point {
             period
         } else {
-            time::wrap_duration(period - self.loop_point, self.loop_duration) + self.loop_point
+            time::wrap_duration(period.saturating_sub(self.loop_point), self.loop_duration).saturating_add(self.loop_point)
         };
         let sample_index = period.mul_f64(self.samples_per_period).as_secs() as usize;
         self.pcm_data.get(sample_index).copied().unwrap_or(0.0)
@@ -186,10 +186,10 @@ impl Envelope {
     /// If `None`, the envelope has finished.
     pub fn sample_volume(&self, note_time: Duration, stop_point: Option<Duration>) -> Option<f64> {
         let release_multiplier = if let Some(stop_point) = stop_point {
-            if note_time > stop_point + self.release_time {
+            if note_time > stop_point.saturating_add(self.release_time) {
                 return None;
             }
-            let release_progress = note_time - stop_point;
+            let release_progress = note_time.saturating_sub(stop_point);
             let release_fraction = release_progress.as_secs_f64() / self.release_time.as_secs_f64();
             1.0 - release_fraction
         } else {
@@ -200,7 +200,7 @@ impl Envelope {
             let attack_fraction = note_time.as_secs_f64() / self.attack_time.as_secs_f64();
             Some(attack_fraction * release_multiplier)
         } else {
-            let time_from_decay_start = note_time - self.attack_time;
+            let time_from_decay_start = note_time.saturating_sub(self.attack_time);
             let decay_multiplier =
                 0.5f64.powf(time_from_decay_start.as_secs_f64() * self.halving_rate);
             Some(decay_multiplier * release_multiplier)
@@ -297,7 +297,7 @@ impl Pom<SampleBank> for Operator {
             return None; // note hasnt started
         }
 
-        let note_time = global_time - start_time;
+        let note_time = global_time.saturating_sub(start_time);
         let Some(envelope_multiplier) = self.envelope.sample_volume(note_time, self.stop_point)
         else {
             return None; // note has ended
@@ -305,7 +305,8 @@ impl Pom<SampleBank> for Operator {
 
         // println!("{self:?} {} {}", self.frequency, self.peak_volume);
 
-        self.current_waveform_period += delta_time.mul_f64(self.frequency);
+        // at 
+        self.current_waveform_period = self.current_waveform_period.saturating_add(delta_time.mul_f64(self.frequency));
         Some(
             self.waveform.sample(
                 data,
